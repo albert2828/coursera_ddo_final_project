@@ -16,6 +16,7 @@ Data for this project was downloaded from kaggle and can be consulted in [here](
 ```{r, include=F}
 library(dplyr)
 library(ggplot2)
+library(caret)
 ```
 
 ```{r}
@@ -23,6 +24,97 @@ df <- read.csv("./data/car data.csv", header = T)
 df <- df[,-1]
 df$age = 2021 - df$Year
 df <- df %>% filter(Fuel_Type != "CNG")
-cars_data = df
+df$Fuel_Type <- as.factor(df$Fuel_Type)
+df$Seller_Type <- as.factor(df$Seller_Type)
+df$Transmission <- as.factor(df$Transmission)
+df$Price_difference <- df$Present_Price - df$Selling_Price
 ```
+
+## Spliting dataset and performing some EDA
+```{r}
+set.seed(28)
+inTrain <- createDataPartition(cars_data$Selling_Price, p=0.8, list = F)
+trainig <- df[inTrain,]
+testing <- df[-inTrain,]
+```
+
+```{r}
+str(trainig)
+summary(trainig)
+trainig <- na.omit(trainig)
+```
+
+```{r}
+trainig %>% ggplot(aes(x=Selling_Price)) +
+            geom_density()+
+            labs(title="Selling price of cars")
+
+trainig %>% ggplot(aes(x=Present_Price)) +
+            geom_density()+
+            labs(title="Present price of cars")
+
+trainig %>% ggplot(aes(x=Price_difference))+
+            geom_density()+
+            labs(title = "Difference between selling price and present price")
+
+trainig %>% ggplot(aes(x=age))+
+            geom_density()+
+            labs(title = "Age of cars")
+
+trainig %>% ggplot(aes(x=Kms_Driven))+
+            geom_density()+
+            labs(title = "Kilometes driven")
+
+trainig %>% ggplot(aes(Fuel_Type))+
+            geom_bar()+
+            labs(title="Fuel Type")
+
+trainig %>% ggplot(aes(Seller_Type))+
+            geom_bar()+
+            labs(title="Seller Type")
+
+trainig %>% ggplot(aes(Transmission))+
+            geom_bar()+
+            labs(title="Transmission")
+
+trainig %>% ggplot(aes(x=Owner))+
+            geom_histogram(binwidth = .9)+
+            labs(title="Number of owners")
+```
+
+```{r}
+trainig %>% ggplot(aes(x=age, y=Present_Price))+
+            geom_point()+
+            labs(title = "Price vs Age")
+
+trainig %>% ggplot(aes(x=Kms_Driven, y=Present_Price))+
+            geom_point()+
+            labs(title = "Price vs Kilometers Driven")
+
+trainig %>% ggplot(aes(x=Present_Price, fill=Fuel_Type))+
+            geom_density(alpha=.6)+
+            labs(title="Price by Fuel Type")
+
+trainig %>% ggplot(aes(x=Present_Price, fill=Seller_Type))+
+            geom_density(alpha=.6)+
+            labs(title="Price by Seller Type")
+
+trainig %>% ggplot(aes(x=Present_Price, fill=Transmission))+
+            geom_density(alpha=.6)+
+            labs(title="Price by Transmission")
+
+```
+
+### Regression model
+```{r}
+trainig <- trainig %>% select(Present_Price, age, Fuel_Type, Kms_Driven,
+                              Transmission, Seller_Type, Owner)
+```
+
+```{r}
+model <- lm(Present_Price~., data=trainig)
+summary(model)
+plot(model)
+```
+
 
