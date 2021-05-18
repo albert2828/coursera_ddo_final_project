@@ -1,0 +1,28 @@
+---
+title: "eda"
+author: "Alberto Macías"
+date: "5/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Predicting the price of your car}
+
+Data for this project was downloaded from kaggle and can be consulted in [here](https://www.kaggle.com/nehalbirla/vehicle-dataset-from-cardekho).
+
+```{r, include=F}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+df <- read.csv("./data/car data.csv", header = T)
+df <- df[,-1]
+df$age = 2021 - df$Year
+df <- df %>% filter(Fuel_Type != "CNG")
+cars_data = df
+```
+
