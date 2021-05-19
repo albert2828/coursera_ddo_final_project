@@ -1,0 +1,131 @@
+---
+title: "Predict the price of your car - Reproducible Pitch"
+author: "Alberto Macías"
+date: "5/19/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, include=FALSE}
+library(dplyr)
+library(caret)
+library(randomForest)
+```
+
+
+## Predicting prices
+
+The web application may be consulted in [here](https://albertomacias.shinyapps.io/predicting_prices/). 
+
+The purpose of this application is that people that want to sell their car, can compute an approximated price depending on a few variables. The variables that are being used are:
+
+- Age of the car  
+- Fuel Type  
+- Kilometers Driven  
+- Transmission  
+- Seller Type  
+- Number of previous owners  
+
+The data for this project was downloaded from Kaggle and may be consulted [here](https://www.kaggle.com/nehalbirla/vehicle-dataset-from-cardekho).
+
+## Model used
+
+For this project, first was considered a linear regression model but because of the poor performance was considered a random forest regression.
+
+```{r, echo=TRUE}
+app_data <- read.csv("./data/car data.csv")
+app_data <- app_data %>% mutate(age = 2021-Year) %>%
+            select(Present_Price, age, Kms_Driven, Fuel_Type,
+                   Seller_Type, Transmission, Owner)
+app_data <- na.omit(app_data)
+model <- train(Present_Price~., data = app_data, method="rf",
+                      trControl = trainControl("cv", number = 3))
+```
+
+The process of the exploratory data analysis and the model selection may be consulted in my [github repository](https://github.com/albert2828/coursera_ddp_final_project).
+
+## ui.R file
+
+The following is part of the ui.R code
+
+```{r, echo=TRUE}
+#library(shiny)
+#shinyUI(fluidPage(
+#    titlePanel("Compute the price of your car"),
+#    sidebarLayout(
+#        sidebarPanel(
+#            sliderInput("age",
+#                        "Age of your car:",
+#                        min = 1,
+#                        max = 50,
+#                        value = 5),
+#            selectInput(inputId = "Fuel_Type", label = "Select the type of fuel your cars uses",
+#                        choices = c("Petrol", "Diesel"),
+#                        selected = "Petrol"),
+#            sliderInput("Kms_Driven",
+#                        "Kilometers Driven",
+#                        min = 1,
+#                        max = 500000, 
+#                        value = 5000),
+#            selectInput("Transmission", "Select the type of Transmission of your car",
+#                        choices = c("Automatic",  "Manual"),
+#                        selected = "Automatic"),
+#            selectInput("Seller_type", "Do you want to sell it yourseld or by a third party?",
+#                   choices = c("Dealer", "Individual"),
+#                   selected =" Dealer"),
+#            selectInput("Owner", "Number of previous owners",
+#                        choices = 0:5,
+#                        selected = 0),
+#            submitButton("Submit")
+#        ),
+#        mainPanel(
+#            h3("Aproximated price of your car"),
+#            textOutput("pred"),
+#            br(),
+#            p("This app is made so you can aproximate the price of your car if you want to sell it"),
+#            p("You only need to fill a few gaps"),
+#            tags$ul(
+#                tags$li("Age: age of your car"),
+#                tags$li("Fuel Type: Petrol or Diesel (for the moment we are not prepared for electric cars)"),
+#                tags$li("Killometers Driven: if your cars runs in miles, multiply miles by 1.60934"),
+#                tags$li("Transmission: Automatic or Manual"),
+#                tags$li("Do you plan to sell it yourself of to go to an agency?"),
+#                tags$li("Number of owners: How may persons have had the car before you?")
+#            ),
+#            p("Finally, just click the Submit buttom!"),
+#            )
+#        )
+#    )
+#)
+```
+
+## server.R
+
+The following is part of the code of the server.R file
+
+```{r, echo=TRUE}
+#library(shiny)
+#shinyServer(function(input, output) {
+#    library(caret); library(randomForest)
+#    app_data <- read.csv("app_data.csv")
+#    app_data <- app_data[,-1]
+#    model <- train(Present_Price~., data = app_data, method="rf",
+#                      trControl = trainControl("cv", number = 3))
+#    modelpred <- reactive({
+#        new_data <- data.frame(age=input$age,
+#                               Fuel_Type=input$Fuel_Type,
+#                               Kms_Driven = input$Kms_Driven,
+#                               Transmission = input$Transmission,
+#                               Seller_Type=input$Seller_type,
+#                               Owner=as.numeric(input$Owner))
+#        predict(model, newdata = new_data)
+#    })
+#    output$pred <- renderText({
+#        paste("$",floor(1000*modelpred()))
+#    })
+#})
+```
+

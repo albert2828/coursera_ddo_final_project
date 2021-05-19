@@ -22,7 +22,7 @@ shinyUI(fluidPage(
                         min = 1,
                         max = 500000, 
                         value = 5000),
-            selectInput("Transmission", "Selectthe type of Transmission of your car",
+            selectInput("Transmission", "Select the type of Transmission of your car",
                         choices = c("Automatic",  "Manual"),
                         selected = "Automatic"),
             selectInput("Seller_type", "Do you want to sell it yourseld or by a third party?",
@@ -35,10 +35,9 @@ shinyUI(fluidPage(
         ),
         
         
-        # Show a plot of the generated distribution
         mainPanel(
             h3("Aproximated price of your car"),
-            textOutput(outputId = "pred"),
+            textOutput("pred"),
             br(),
             p("This app is made so you can aproximate the price of your car if you want to sell it"),
             p("You only need to fill a few gaps"),
@@ -50,7 +49,7 @@ shinyUI(fluidPage(
                 tags$li("Do you plan to sell it yourself of to go to an agency?"),
                 tags$li("Number of owners: How may persons have had the car before you?")
             ),
-            p("Finally, just click the Submit buttom!")
+            p("Finally, just click the Submit buttom!"),
             )
         
         
