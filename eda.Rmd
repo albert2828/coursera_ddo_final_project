@@ -33,7 +33,7 @@ df$Price_difference <- df$Present_Price - df$Selling_Price
 ## Spliting dataset and performing some EDA
 ```{r}
 set.seed(28)
-inTrain <- createDataPartition(cars_data$Selling_Price, p=0.8, list = F)
+inTrain <- createDataPartition(df$Present_Price, p=0.8, list = F)
 trainig <- df[inTrain,]
 testing <- df[-inTrain,]
 ```
@@ -117,4 +117,38 @@ summary(model)
 plot(model)
 ```
 
+It seems that there is still some influence between the fitted values and the residuals. This may be explained by the lack of other variables that may increase the price of cars, such as some luxury items that these may include and are not present in the data.
+
+```{r}
+testing <- testing %>% select(Present_Price, age, Fuel_Type, Kms_Driven,
+                              Transmission, Seller_Type, Owner)
+```
+
+```{r}
+pred <- predict(model, testing)
+values <- data.frame(real_values = testing$Present_Price, 
+                     pred_values = pred,
+                     residuals = testing$Present_Price - pred)
+(mse <- sqrt(sum(values$residuals^2)))
+```
+
+Linear regression doesn't seem to have a good performance, so I try with random forest regression.
+
+## Random Forest Regression
+
+```{r}
+model_rf <- train(Present_Price~., data = trainig, method="rf",
+                  trControl = trainControl("cv", number = 3))
+pred_rf <- predict(model_rf, testing)
+values$pred_values_rf <- pred_rf
+values$residuals_rf <- values$real_values - values$pred_values_rf
+(mse_rf <- sqrt(sum(values$residuals_rf)))
+```
+
+Random forest model seems to have a better performance out of sample
+
+```{r}
+app_data <- rbind(trainig, testing)
+write.csv(app_data,file = "./predicting_prices/app_data.csv")
+```
 

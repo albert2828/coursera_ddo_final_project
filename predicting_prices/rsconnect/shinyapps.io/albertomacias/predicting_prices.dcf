@@ -1,0 +1,13 @@
+name: predicting_prices
+title: predicting_prices
+username:
+account: albertomacias
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4151007
+bundleId: 4613857
+url: https://albertomacias.shinyapps.io/predicting_prices/
+when: 1621384981.09299
+lastSyncTime: 1621384981.09299
+asMultiple: FALSE
+asStatic: FALSE
